@@ -1,5 +1,5 @@
-from datetime import date, datetime, timedelta
-from dateutil import relativedelta
+from datetime import *; from dateutil.relativedelta import *
+import calendar
 from notion.client import NotionClient
 from notion.collection import NotionDate, CollectionRowBlock
 
@@ -7,23 +7,25 @@ def copy_tasks(token_v2, page_url):
     client = NotionClient(token_v2)
     block = client.get_block(page_url)
     tasks = block.collection
+    earliest_date = date.today() + relativedelta(months=-1, day=1)
+    latest_date = earliest_date + relativedelta(months=+3)
     for row in tasks.get_rows():
-        if need_recurring(row):
-            ensure_recurring(row)
+        if need_recurring(row, earliest_date, latest_date):
+            ensure_recurring(row, latest_date)
 
 #------------------------------------------------------------
 
-def need_recurring(row):
+def need_recurring(row, earliest_date, latest_date):
     if row.povtoriaetsia == []:
         return False
-    days_passed = get_days_passed(row.data.start)
-    return 0 < days_passed < 14
+    return earliest_date <= get_date(row.data.start) < latest_date
 
-def ensure_recurring(row):
-    next_dates = [get_next_date(mode, row.data) for mode in row.povtoriaetsia]
-    for next_date in next_dates:
-        if not has_recurring(row, next_date):
-            create_recurring(row, next_date)
+def ensure_recurring(row, latest_date):
+    for mode in row.povtoriaetsia:
+        date = get_date(row.data.start)
+        for next_date in get_next_dates(mode, date, latest_date):
+            if next_date >= date.today() and not has_recurring(row, next_date):
+                create_recurring(row, next_date)
 
 def has_recurring(row, next_date):
     for r in row.collection.get_rows():
@@ -61,40 +63,53 @@ def create_row(collection, properties):
 
 #------------------------------------------------------------
 
-def get_days_passed(day):
-    time_passed = date.today() - get_date(day)
-    return time_passed.days
-
-def get_next_date(mode, notion_date):
-    if mode == 'Понедельники':
-        date = get_next_weekday(0);
-    elif mode == 'Вторники':
-        date = get_next_weekday(1);
-    elif mode == 'Среды':
-        date = get_next_weekday(2);
-    elif mode == 'Четверги':
-        date = get_next_weekday(3);
-    elif mode == 'Пятницы':
-        date = get_next_weekday(4);
-    elif mode == 'Субботы':
-        date = get_next_weekday(5);
-    elif mode == 'Воскресенья':
-        date = get_next_weekday(6);
-    elif mode == 'Каждое второе воскресенье':
-        date = get_second_next_weekday_since(6, notion_date.start);
-    elif mode == 'Каждое 1е':
-        date = get_next_day(1);
-    elif mode == 'Каждое 20е':
-        date = get_next_day(20);
-    else:
-        raise ValueError('Undefined mode: {}'.format(mode))
-    return date
-
 def get_date(day):
     if isinstance(day, datetime):
         return day.date()
     else:
         return day
+
+def get_next_dates(mode, start, end):
+    start = get_date(start)
+    if mode == 'Понедельники':
+        return get_weekly_days(0, start, end)
+    elif mode == 'Вторники':
+        return get_weekly_days(1, start, end)
+    elif mode == 'Среды':
+        return get_weekly_days(2, start, end)
+    elif mode == 'Четверги':
+        return get_weekly_days(3, start, end)
+    elif mode == 'Пятницы':
+        return get_weekly_days(4, start, end)
+    elif mode == 'Субботы':
+        return get_weekly_days(5, start, end)
+    elif mode == 'Воскресенья':
+        return get_weekly_days(6, start, end)
+    elif mode == 'Каждый второй понедельник':
+        return get_weekly_other_days(0, start, end)
+    elif mode == 'Каждое второе воскресенье':
+        return get_weekly_other_days(6, start, end)
+    elif mode == 'Каждое 1е':
+        return get_next_days(1, start, end)
+    elif mode == 'Каждое 20е':
+        return get_next_days(20, start, end)
+    raise ValueError('Undefined mode: {}'.format(mode))
+
+def get_weekly_days(weekday, start, end):
+    if start.weekday() != weekday:
+        return []
+    return get_days(start, end, 7)
+
+def get_weekly_other_days(weekday, start, end):
+    if start.weekday() != weekday:
+        return []
+    return get_days(start, end, 14)
+
+def get_days(start, end, step_days):
+    next = start
+    while next < end:
+        yield next
+        next += timedelta(days=step_days)
 
 def get_next_weekday_since(weekday, last):
     days_ahead = weekday - last.weekday()
@@ -102,15 +117,13 @@ def get_next_weekday_since(weekday, last):
         days_ahead += 7
     return last + timedelta(days_ahead)
 
-def get_next_weekday(weekday):
-    return get_next_weekday_since(weekday, date.today() - timedelta(days=1))
-
 def get_second_next_weekday_since(weekday, last):
     next = get_next_weekday_since(weekday, last)
     return next + timedelta(7)
 
-def get_next_day(day):
-    next = date.today() + relativedelta.relativedelta(months=0, day=day)
-    if next < date.today():
-        next = next + relativedelta.relativedelta(months=1)
-    return next
+def get_next_days(day, start, end):
+    print(start, end)
+    next = start + relativedelta(months=0, day=day)
+    while next < end:
+        yield next
+        next += relativedelta(months=+1)
