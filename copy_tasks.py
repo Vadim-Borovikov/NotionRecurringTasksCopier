@@ -6,10 +6,10 @@ from notion.collection import NotionDate, CollectionRowBlock
 def copy_tasks(token_v2, page_url):
     client = NotionClient(token_v2)
     block = client.get_block(page_url)
-    tasks = block.collection
+    collection = block.collection
     earliest_date = date.today() + relativedelta(months=-1, day=1)
     latest_date = earliest_date + relativedelta(months=+3)
-    for row in tasks.get_rows():
+    for row in collection.get_rows():
         if need_recurring(row, earliest_date, latest_date):
             ensure_recurring(row, latest_date)
 
@@ -23,9 +23,10 @@ def need_recurring(row, earliest_date, latest_date):
 def ensure_recurring(row, latest_date):
     for mode in row.povtoriaetsia:
         date = get_date(row.data.start)
-        for next_date in get_next_dates(mode, date, latest_date):
-            if next_date >= date.today() and not has_recurring(row, next_date):
-                create_recurring(row, next_date)
+        next_dates = [next for next in get_next_dates(mode, date, latest_date) if next >= date.today() and not has_recurring(row, next)]
+        next_properties = [prepare_properties(row, next_date) for next_date in next_dates]
+        for properties in next_properties:
+            create_row(row.collection, properties)
 
 def has_recurring(row, next_date):
     for r in row.collection.get_rows():
@@ -35,21 +36,12 @@ def has_recurring(row, next_date):
             return True
     return False
 
-def create_recurring(row, next_date):
-    properties = prepare_properties(row, next_date)
-    return create_row(row.collection, properties)
-
 #------------------------------------------------------------
 
 def prepare_properties(row, next_date):
     properties = row.get_all_properties();
     properties['status'] = 'Не приступал'
-    days_diff = next_date - get_date(row.data.start)
-    new_start = row.data.start + days_diff
-    new_end = None
-    if not row.data.end is None:
-        new_end = row.data.end + days_diff
-    properties['data'] = NotionDate(new_start, new_end, row.data.timezone)
+    properties['data'] = get_new_date(row.data, next_date)
     return properties
 
 def create_row(collection, properties):
@@ -62,6 +54,14 @@ def create_row(collection, properties):
     return new_row
 
 #------------------------------------------------------------
+
+def get_new_date(notion_date, next_date):
+    days_diff = next_date - get_date(notion_date.start)
+    new_start = notion_date.start + days_diff
+    new_end = None
+    if not notion_date.end is None:
+        new_end = notion_date.end + days_diff
+    return NotionDate(new_start, new_end, notion_date.timezone)    
 
 def get_date(day):
     if isinstance(day, datetime):
@@ -122,7 +122,6 @@ def get_second_next_weekday_since(weekday, last):
     return next + timedelta(7)
 
 def get_next_days(day, start, end):
-    print(start, end)
     next = start + relativedelta(months=0, day=day)
     while next < end:
         yield next
