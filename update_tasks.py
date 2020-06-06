@@ -4,7 +4,7 @@ from math import floor
 from notion.client import NotionClient
 from notion.collection import NotionDate, CollectionRowBlock
 
-def update_tasks(token_v2, source_page_url, target_page_url):
+def update_tasks(token_v2, source_page_url, target_page_url, test=False):
     client = NotionClient(token_v2)
     source_block = client.get_block(source_page_url)
     source = source_block.collection
@@ -12,7 +12,9 @@ def update_tasks(token_v2, source_page_url, target_page_url):
     target = target_block.collection
     earliest_date = date.today() + relativedelta(months=-1, day=1)
     latest_date = earliest_date + relativedelta(months=+2, weeks=+1)
-    recurring_rows = [r for r in source.get_rows() if r.test]
+    recurring_rows = source.get_rows()
+    if test:
+        recurring_rows = [r for r in source.get_rows() if r.test]
     for num, row in enumerate(recurring_rows):
         print("Recurring {0} ({1}/{2})...".format(row.title, num + 1, len(recurring_rows)))
         update_next(row)
