@@ -36,6 +36,7 @@ def update_next(row):
 
 def ensure_recurring(source_row, latest_date, target):
     next_dates = []
+    start = get_date(source_row.data.start)
     for mode in source_row.povtoriaetsia:
         for next_date in get_next_dates(mode, get_previous_date(source_row), latest_date):
             if next_date >= date.today() and not has_recurring(source_row.sleduiushchie, next_date):
@@ -57,6 +58,7 @@ def prepare_properties(row, next_date):
     properties = row.get_all_properties()
     properties['status'] = 'Не приступал'
     properties['data'] = get_new_date(row.data, next_date)
+    del properties['kommentarii']
     del properties['povtoriaetsia']
     del properties['predydushchie']
     del properties['sleduiushchie']
@@ -93,8 +95,7 @@ def get_date(day):
     else:
         return day
 
-def get_next_dates(mode, other_day_seed, end):
-    start = date.today()
+def get_next_dates(mode, start, end):
     if mode == 'Понедельники':
         return get_weekly_days(0, start, end)
     elif mode == 'Вторники':
@@ -110,7 +111,7 @@ def get_next_dates(mode, other_day_seed, end):
     elif mode == 'Воскресенья':
         return get_weekly_days(6, start, end)
     elif mode == 'Каждый второй понедельник' or mode == 'Каждое второе воскресенье':
-        return get_weekly_other_days(start, end, other_day_seed)
+        return get_weekly_other_days(start, end)
     elif mode == 'Каждое 1е':
         return get_next_days(1, start, end)
     elif mode == 'Каждое 20е':
@@ -121,11 +122,7 @@ def get_weekly_days(weekday, start, end):
     start = start + relativedelta(weekday=weekday)
     return get_days(start, end, 7)
 
-def get_weekly_other_days(start, end, seed):
-    steps = 0;
-    if seed < start:
-        steps = floor((start - seed).days / 14) + 1
-    start = seed + timedelta(days=(14 * steps))
+def get_weekly_other_days(start, end):
     return get_days(start, end, 14)
 
 def get_days(start, end, step_days):
