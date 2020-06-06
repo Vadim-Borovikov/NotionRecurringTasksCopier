@@ -9,9 +9,10 @@ def copy_tasks(token_v2, page_url):
     collection = block.collection
     earliest_date = date.today() + relativedelta(months=-1, day=1)
     latest_date = earliest_date + relativedelta(months=+3)
-    for row in collection.get_rows():
-        if need_recurring(row, earliest_date, latest_date):
-            ensure_recurring(row, latest_date)
+    recurring_rows = [row for row in collection.get_rows() if need_recurring(row, earliest_date, latest_date)]
+    for num, row in enumerate(recurring_rows):
+        print("Recurring {0} ({1}/{2})...".format(row.title, num + 1, len(recurring_rows)))
+        ensure_recurring(row, latest_date)
 
 #------------------------------------------------------------
 
@@ -21,12 +22,16 @@ def need_recurring(row, earliest_date, latest_date):
     return earliest_date <= get_date(row.data.start) < latest_date
 
 def ensure_recurring(row, latest_date):
+    date = get_date(row.data.start)
+    next_dates = []
     for mode in row.povtoriaetsia:
-        date = get_date(row.data.start)
-        next_dates = [next for next in get_next_dates(mode, date, latest_date) if next >= date.today() and not has_recurring(row, next)]
-        next_properties = [prepare_properties(row, next_date) for next_date in next_dates]
-        for properties in next_properties:
-            create_row(row.collection, properties)
+        for next_date in get_next_dates(mode, date, latest_date):
+            if next_date >= date.today() and not has_recurring(row, next_date):
+                next_dates.append(next_date)
+    for num, next_date in enumerate(next_dates):
+        print("    {0}/{1}...".format(num + 1, len(next_dates)))
+        properties = prepare_properties(row, next_date)
+        create_row(row.collection, properties)
 
 def has_recurring(row, next_date):
     for r in row.collection.get_rows():
