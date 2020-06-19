@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta, SU
 from math import floor
 from notion.client import NotionClient
 from notion.collection import NotionDate, CollectionRowBlock
@@ -11,7 +11,7 @@ def update_tasks(token_v2, source_page_url, target_page_url, test=False):
     target_block = client.get_block(target_page_url)
     target = target_block.collection
     earliest_date = date.today() + relativedelta(months=-1, day=1)
-    latest_date = earliest_date + relativedelta(months=+2, weeks=+1)
+    latest_date = earliest_date + relativedelta(months=+2, day=1, weekday=SU(2))
     recurring_rows = source.get_rows()
     if test:
         recurring_rows = [r for r in source.get_rows() if r.test]
