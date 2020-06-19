@@ -118,6 +118,8 @@ def get_next_dates(mode, start, end):
         return get_next_days(1, start, end)
     elif mode == 'Каждое 20е':
         return get_next_days(20, start, end)
+    elif mode == 'Каждые полгода':
+        return get_next_months(6, start, end)
     raise ValueError('Undefined mode: {}'.format(mode))
 
 def get_weekly_days(weekday, start, end):
@@ -148,3 +150,12 @@ def get_next_days(day, start, end):
     while next < end:
         yield next
         next += relativedelta(months=+1)
+        
+def get_next_months(step_months, start, end):
+    next = start
+    while True:
+        next += relativedelta(months=+6)
+        if next < end:
+            yield next
+        else:
+            break
