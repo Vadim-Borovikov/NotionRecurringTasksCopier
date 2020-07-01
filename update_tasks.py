@@ -10,8 +10,8 @@ def update_tasks(token_v2, source_page_url, target_page_url, test=False):
     source = source_block.collection
     target_block = client.get_block(target_page_url)
     target = target_block.collection
-    earliest_date = date.today() + relativedelta(months=-1, day=1)
-    latest_date = earliest_date + relativedelta(months=+2, day=1, weekday=SU(2))
+    earliest_date = get_earliest_date(date.today())
+    latest_date = get_latest_date(date.today())
     recurring_rows = source.get_rows()
     if test:
         recurring_rows = [r for r in source.get_rows() if r.test]
@@ -21,6 +21,15 @@ def update_tasks(token_v2, source_page_url, target_page_url, test=False):
         ensure_recurring(row, latest_date, target)
 
 #------------------------------------------------------------
+
+def get_earliest_date(date):
+    return date + relativedelta(months=-1, day=1)
+
+def get_latest_date(date):
+    latest_date = date + relativedelta(months=+1, day=1, weekday=SU(1))
+    if latest_date.day < 7:
+        latest_date += relativedelta(weeks=+1)
+    return latest_date    
 
 def update_next(row):
     row.predydushchie = [r for r in row.predydushchie if r.alive]
@@ -38,9 +47,10 @@ def update_next(row):
 
 def ensure_recurring(source_row, latest_date, target):
     next_dates = []
+    day_after_latest = latest_date + relativedelta(days=+1)
     start = get_date(source_row.data.start)
     for mode in source_row.povtoriaetsia:
-        for next_date in get_next_dates(mode, get_previous_date(source_row), latest_date):
+        for next_date in get_next_dates(mode, get_previous_date(source_row), day_after_latest):
             if next_date >= date.today() and not has_recurring(source_row.sleduiushchie, next_date):
                 next_dates.append(next_date)
     next_rows = source_row.sleduiushchie
