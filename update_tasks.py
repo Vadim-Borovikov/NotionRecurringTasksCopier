@@ -17,7 +17,6 @@ def update_tasks(token_v2, source_page_url, target_page_url, test=False):
         recurring_rows = [r for r in source.get_rows() if r.test]
     for num, row in enumerate(recurring_rows):
         print("Recurring {0} ({1}/{2})...".format(row.title, num + 1, len(recurring_rows)))
-        update_next(row)
         ensure_recurring(row, latest_date, target)
 
 #------------------------------------------------------------
@@ -31,38 +30,23 @@ def get_latest_date(date):
         latest_date += relativedelta(weeks=+1)
     return latest_date    
 
-def update_next(row):
-    row.predydushchie = [r for r in row.predydushchie if r.alive]
-    row.sleduiushchie = [r for r in row.sleduiushchie if r.alive]
-    previous_rows = row.predydushchie
-    next_rows = row.sleduiushchie
-    for next in row.sleduiushchie:
-        if get_date(next.data.start) < date.today():
-            previous_rows.append(next)
-            next_rows.remove(next)
-    client = row.collection._client
-    with client.as_atomic_transaction():
-        row.predydushchie = previous_rows
-        row.sleduiushchie = next_rows
-
 def ensure_recurring(source_row, latest_date, target):
     next_dates = []
     day_after_latest = latest_date + relativedelta(days=+1)
     start = get_date(source_row.data.start)
     for mode in source_row.povtoriaetsia:
-        for next_date in get_next_dates(mode, get_previous_date(source_row), day_after_latest):
-            if next_date >= date.today() and not has_recurring(source_row.sleduiushchie, next_date):
+        previous_date = get_date(source_row.data.start)
+        for next_date in get_next_dates(mode, previous_date, day_after_latest):
+            if next_date >= date.today() and not has_recurring(source_row, target.get_rows(), next_date):
                 next_dates.append(next_date)
-    next_rows = source_row.sleduiushchie
     for num, next_date in enumerate(next_dates):
         print("    {0}/{1}...".format(num + 1, len(next_dates)))
         properties = prepare_properties(source_row, next_date)
-        new_row = create_row(target, properties)
-        next_rows.append(new_row)
-    source_row.sleduiushchie = next_rows
+        create_row(target, properties)
 
-def has_recurring(next_rows, next_date):
-    return any(r for r in next_rows if get_date(r.data.start) == next_date)
+def has_recurring(source_row, target_rows, date):
+    title = source_row.title
+    return any(r for r in target_rows if r.povtoriaetsia and r.title == title and get_date(r.data.start) == date)
 
 #------------------------------------------------------------
 
@@ -70,10 +54,8 @@ def prepare_properties(row, next_date):
     properties = row.get_all_properties()
     properties['status'] = 'Не приступал'
     properties['data'] = get_new_date(row.data, next_date)
+    properties['povtoriaetsia'] = True
     del properties['kommentarii']
-    del properties['povtoriaetsia']
-    del properties['predydushchie']
-    del properties['sleduiushchie']
     return properties
 
 def create_row(collection, properties):
@@ -86,12 +68,6 @@ def create_row(collection, properties):
     return new_row
 
 #------------------------------------------------------------
-
-def get_previous_date(row):
-    date = row.data.start
-    if row.predydushchie:
-        date = max([r.data.start for r in row.predydushchie])
-    return get_date(date)
 
 def get_new_date(notion_date, next_date):
     days_diff = next_date - get_date(notion_date.start)
