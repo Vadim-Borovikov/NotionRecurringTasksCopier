@@ -139,9 +139,6 @@ def get_next_days(day, start, end):
         
 def get_next_months(step_months, start, end):
     next = start
-    while True:
+    while next < end:
+        yield next
         next += relativedelta(months=+6)
-        if next < end:
-            yield next
-        else:
-            break
