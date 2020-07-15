@@ -40,7 +40,7 @@ def ensure_recurring(source_row, latest_date, target):
             if next_date >= date.today() and not has_recurring(source_row, target.get_rows(), next_date):
                 next_dates.append(next_date)
     for num, next_date in enumerate(next_dates):
-        print("    {0}/{1}...".format(num + 1, len(next_dates)))
+        print("    Adding {2:%d.%m.%Y} ({0}/{1})...".format(num + 1, len(next_dates), next_date))
         properties = prepare_properties(source_row, next_date)
         create_row(target, properties)
 
