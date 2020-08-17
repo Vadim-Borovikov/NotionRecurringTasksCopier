@@ -106,6 +106,8 @@ def get_next_dates(mode, start, end):
         return get_next_days(20, start, end)
     elif mode == 'Каждые полгода':
         return get_next_months(6, start, end)
+    elif mode == 'Каждый год':
+        return get_next_months(12, start, end)
     raise ValueError('Undefined mode: {}'.format(mode))
 
 def get_weekly_days(weekday, start, end):
