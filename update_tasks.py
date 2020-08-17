@@ -141,4 +141,4 @@ def get_next_months(step_months, start, end):
     next = start
     while next < end:
         yield next
-        next += relativedelta(months=+6)
+        next += relativedelta(months=+step_months)
