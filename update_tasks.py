@@ -98,7 +98,7 @@ def get_next_dates(mode, start, end):
         return get_weekly_days(5, start, end)
     elif mode == 'Воскресенья':
         return get_weekly_days(6, start, end)
-    elif mode == 'Каждый второй понедельник' or mode == 'Каждое второе воскресенье':
+    elif mode.startswith('Каждый второй') or mode.startswith('Каждую вторую') or mode.startswith('Каждое второе'):
         return get_weekly_other_days(start, end)
     elif mode == 'Каждое 1е':
         return get_next_days(1, start, end)
@@ -116,6 +116,9 @@ def get_weekly_days(weekday, start, end):
 
 def get_weekly_other_days(start, end):
     return get_days(start, end, 14)
+
+def get_empty_days():
+    yield date.today() - timedelta(1)
 
 def get_days(start, end, step_days):
     next = start
