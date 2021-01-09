@@ -37,16 +37,23 @@ def ensure_recurring(source_row, latest_date, target):
     for mode in source_row.povtoriaetsia:
         previous_date = get_date(source_row.data.start)
         for next_date in get_next_dates(mode, previous_date, day_after_latest):
-            if next_date >= date.today() and not has_recurring(source_row, target.get_rows(), next_date):
+            if next_date >= date.today() and not has_recurring(source_row, target, next_date):
                 next_dates.append(next_date)
     for num, next_date in enumerate(next_dates):
         print("    Adding {2:%d.%m.%Y} ({0}/{1})...".format(num + 1, len(next_dates), next_date))
         properties = prepare_properties(source_row, next_date)
         create_row(target, properties)
 
-def has_recurring(source_row, target_rows, date):
-    title = source_row.title
-    return any(r for r in target_rows if r.povtoriaetsia and r.title == title and get_date(r.data.start) == date)
+def has_recurring(source_row, target, date):
+    date_string = date.strftime("%Y-%m-%d")
+    date_value = get_filter_value(date_string)
+    filter_recurring = get_filter("povtoriaetsia", "checkbox_is", True)
+    filter_title = get_filter("title", "string_is", source_row.title)
+    filter_date1 = get_filter("data", "date_is_on_or_before", date_value)
+    filter_date2 = get_filter("data", "date_is_on_or_after", date_value)
+    filters = get_filters([filter_recurring, filter_title, filter_date1, filter_date2])
+    target_rows = target.get_rows(filter=filters)
+    return any(target_rows)
 
 #------------------------------------------------------------
 
@@ -68,6 +75,30 @@ def create_row(collection, properties):
     return new_row
 
 #------------------------------------------------------------
+
+def get_filter_value(start_date):
+    return {
+        "type": "date",
+        "start_date": start_date
+        }
+
+def get_filter(property, operator, value):
+    return {
+        "property": property,
+        "filter": {
+            "operator": operator,
+            "value": {
+                "type": "exact",
+                "value": value
+                }
+            }
+        }
+
+def get_filters(filters):
+    return {
+        "filters": filters,
+        "operator": "and"
+        }
 
 def get_new_date(notion_date, next_date):
     days_diff = next_date - get_date(notion_date.start)
