@@ -362,3 +362,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 /NotionRecurringTasksCopier/local_executer.py
+/NotionRecurringTasksCopier/appsettings.json

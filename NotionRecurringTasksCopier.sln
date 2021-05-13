@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.1321
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "NotionRecurringTasksCopier", "NotionRecurringTasksCopier\NotionRecurringTasksCopier.pyproj", "{58090B70-49CF-4F17-BCCA-4182B66543BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotionRecurringTasksCopier", "NotionRecurringTasksCopier\NotionRecurringTasksCopier.csproj", "{E85F2275-6137-4A19-A1AF-0DF5A93DB635}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,8 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{58090B70-49CF-4F17-BCCA-4182B66543BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{58090B70-49CF-4F17-BCCA-4182B66543BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E85F2275-6137-4A19-A1AF-0DF5A93DB635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E85F2275-6137-4A19-A1AF-0DF5A93DB635}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E85F2275-6137-4A19-A1AF-0DF5A93DB635}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E85F2275-6137-4A19-A1AF-0DF5A93DB635}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
