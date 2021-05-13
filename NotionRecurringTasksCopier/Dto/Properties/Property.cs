@@ -19,7 +19,7 @@ namespace NotionRecurringTasksCopier.Dto.Properties
             Title,
             // People,
             // Files,
-            Checkbox,
+            Checkbox
             // PhoneNumber,
             // CreatedTime,
             // CreatedBy,

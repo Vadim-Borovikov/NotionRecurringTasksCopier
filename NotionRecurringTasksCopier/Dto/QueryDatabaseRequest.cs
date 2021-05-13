@@ -1,16 +1,17 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
+// ReSharper disable UnusedMember.Global
 
 namespace NotionRecurringTasksCopier.Dto
 {
-    internal class QueryDatabaseRequest
+    internal sealed class QueryDatabaseRequest
     {
-        public class Sort
+        public sealed class Sort
         {
             public enum SortTimestamp
             {
                 CreatedTime,
-                LastEditedTime,
+                LastEditedTime
             }
 
             public enum SortDirection
