@@ -8,7 +8,7 @@ namespace NotionRecurringTasksCopier.Dto.Properties
     {
         public sealed class Option
         {
-            public enum OptionColor
+            public enum ColorEnum
             {
                 Default,
                 Gray,
@@ -29,8 +29,11 @@ namespace NotionRecurringTasksCopier.Dto.Properties
             public string Id { get; set; }
 
             [JsonProperty]
-            public OptionColor Color { get; set; }
+            public ColorEnum Color { get; set; }
         }
+
+        [JsonProperty]
+        public override TypeEnum Type => TypeEnum.MultiSelect;
 
         [JsonProperty]
         public List<Option> MultiSelect { get; set; }

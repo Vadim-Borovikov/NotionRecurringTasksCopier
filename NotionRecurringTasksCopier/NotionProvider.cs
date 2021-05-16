@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using NotionRecurringTasksCopier.Converters;
 using NotionRecurringTasksCopier.Dto;
 using NotionRecurringTasksCopier.Dto.Filters;
 
@@ -12,7 +13,7 @@ namespace NotionRecurringTasksCopier
         public static QueryDatabaseResult QueryDatabase(string datebaseId, string token, Filter filter = null,
             List<QueryDatabaseRequest.Sort> sorts = null, string startCursor = null, int pageSize = MaxPageSize)
         {
-            string apiProvider = $"{ApiProviderPrefix}{datebaseId}/";
+            string apiProvider = $"{ApiProviderPrefix}{ApiProviderDatabasesPart}{datebaseId}/";
 
             var dto = new QueryDatabaseRequest
             {
@@ -42,7 +43,8 @@ namespace NotionRecurringTasksCopier
         };
 
         private const int MaxPageSize = 100;
-        private const string ApiProviderPrefix = "https://api.notion.com/v1/databases/";
+        private const string ApiProviderPrefix = "https://api.notion.com/v1/";
+        private const string ApiProviderDatabasesPart = "databases/";
         private const string QueryMethod = "query";
     }
 }

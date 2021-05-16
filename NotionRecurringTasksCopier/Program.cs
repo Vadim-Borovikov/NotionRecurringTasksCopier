@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using Microsoft.Extensions.Configuration;
 using NotionRecurringTasksCopier.Dto;
+using NotionRecurringTasksCopier.Dto.Filters;
 
 namespace NotionRecurringTasksCopier
 {
@@ -14,7 +16,16 @@ namespace NotionRecurringTasksCopier
 
             System.Console.WriteLine("done.");
 
-            QueryDatabaseResult result = NotionProvider.QueryDatabase(config.DatabaseId, config.Token);
+            var filter = new CheckboxFilter
+            {
+                Property = "Test",
+                Checkbox = new CheckboxFilter.CheckboxType
+                {
+                    Equals = true
+                }
+            };
+
+            List<Page> pages = DataManager.QueryDatabase(config.DatabaseId, config.Token, filter);
         }
 
         private static Config GetConfig()
@@ -25,6 +36,5 @@ namespace NotionRecurringTasksCopier
                 .Build()
                 .Get<Config>();
         }
-
     }
 }

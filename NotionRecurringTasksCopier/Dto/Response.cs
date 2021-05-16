@@ -3,8 +3,11 @@ using Newtonsoft.Json;
 
 namespace NotionRecurringTasksCopier.Dto
 {
-    internal abstract class Response<T>
+    internal abstract class Response<T> : ObjectBase
     {
+        [JsonProperty]
+        public override TypeEnum Object => TypeEnum.List;
+
         [JsonProperty]
         public bool HasMore { get; set; }
 
@@ -13,8 +16,5 @@ namespace NotionRecurringTasksCopier.Dto
 
         [JsonProperty]
         public List<T> Results { get; set; }
-
-        [JsonProperty]
-        public string Object { get; set; }
     }
 }

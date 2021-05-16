@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-// ReSharper disable UnusedMember.Global
 
 namespace NotionRecurringTasksCopier.Dto.Filters
 {

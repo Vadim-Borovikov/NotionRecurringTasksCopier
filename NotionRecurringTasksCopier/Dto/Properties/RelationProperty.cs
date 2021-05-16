@@ -12,6 +12,9 @@ namespace NotionRecurringTasksCopier.Dto.Properties
         }
 
         [JsonProperty]
+        public override TypeEnum Type => TypeEnum.Relation;
+
+        [JsonProperty]
         public List<PageReference> Relation { get; set; }
     }
 }

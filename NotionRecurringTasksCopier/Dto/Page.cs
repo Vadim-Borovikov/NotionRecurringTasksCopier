@@ -1,22 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using NotionRecurringTasksCopier.Dto.Parents;
 
 namespace NotionRecurringTasksCopier.Dto
 {
-    internal sealed class Page
+    internal sealed class Page : ObjectBase
     {
-        public sealed class PageParent
-        {
-            [JsonProperty]
-            public string Type { get; set; }
-
-            [JsonProperty]
-            public string DatabaseId { get; set; }
-        }
-
         [JsonProperty]
-        public string Object { get; set; }
+        public override TypeEnum Object => TypeEnum.Page;
 
         [JsonProperty]
         public string Id { get; set; }
@@ -28,7 +20,7 @@ namespace NotionRecurringTasksCopier.Dto
         public DateTime LastEditedTime { get; set; }
 
         [JsonProperty]
-        public PageParent Parent { get; set; }
+        public Parent Parent { get; set; }
 
         [JsonProperty]
         public bool Archived { get; set; }

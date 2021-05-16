@@ -15,6 +15,9 @@ namespace NotionRecurringTasksCopier.Dto.Properties
         }
 
         [JsonProperty]
+        public override TypeEnum Type => TypeEnum.Date;
+
+        [JsonProperty]
         public Dates Date { get; set; }
     }
 }
