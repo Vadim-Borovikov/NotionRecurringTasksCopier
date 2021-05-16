@@ -9,13 +9,19 @@ namespace NotionRecurringTasksCopier
 {
     internal sealed class Task
     {
+        public sealed class DateType
+        {
+            public Date Start;
+            public Date End;
+        }
+
         public string Name
         {
             get => _title.Content;
             set => _title.Content = value;
         }
 
-        public DateProperty.Dates Date => GetProperty<DateProperty>(DateName).Date;
+        public DateType Date { get; }
 
         public readonly List<string> Recurring;
 
@@ -29,8 +35,36 @@ namespace NotionRecurringTasksCopier
 
             _title = GetTitle();
 
+            _dates = GetProperty<DateProperty>(DateName).Date;
+            Date = new DateType
+            {
+                Start = new Date(_dates.Start),
+                End = _dates.End == null ? null : new Date(_dates.End)
+            };
+
             Recurring = GetRecurring();
         }
+
+        public void SetDay(DateTime day)
+        {
+            DateTime oldDay = Date.Start.Day;
+            Date.Start.Day = day.Date;
+
+            if (Date.End != null)
+            {
+                Date.End.Day += day - oldDay;
+            }
+
+            UpdateDateProperty();
+        }
+
+        private void UpdateDateProperty()
+        {
+            _dates.Start = Date.Start.ToString();
+            _dates.End = Date.End?.ToString();
+        }
+
+        public void AddDays(int days) => SetDay(Date.Start.Day.AddDays(days));
 
         public Dictionary<string, Property> GetPageProperties() => _source.Properties;
 
@@ -71,6 +105,7 @@ namespace NotionRecurringTasksCopier
 
         private readonly Page _source;
         private readonly RichTextText.TextType _title;
+        private readonly DateProperty.Dates _dates;
 
         private const string NameName = "Задача";
         private const string DateName = "Дата";

@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 
 namespace NotionRecurringTasksCopier.Dto.Properties
@@ -8,10 +7,10 @@ namespace NotionRecurringTasksCopier.Dto.Properties
         public sealed class Dates
         {
             [JsonProperty]
-            public DateTime Start { get; set; }
+            public string Start { get; set; }
 
             [JsonProperty]
-            public DateTime? End { get; set; }
+            public string End { get; set; }
         }
 
         [JsonProperty]

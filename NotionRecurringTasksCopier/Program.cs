@@ -29,6 +29,11 @@ namespace NotionRecurringTasksCopier
 
             List<Page> pages = DataManager.QueryDatabase(config.DatabaseId, config.Token, filter);
             List<Task> tasks = pages.Select(p => new Task(p)).ToList();
+
+            Task task = tasks[0];
+            task.Name = "000. Trololo";
+            task.SetDay(DateTime.Today);
+            DataManager.AddTaskToDatabase(task, config.DatabaseId, config.Token);
         }
 
         private static Config GetConfig()
