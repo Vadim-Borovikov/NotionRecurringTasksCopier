@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using NotionRecurringTasksCopier.Dto;
 using NotionRecurringTasksCopier.Dto.Filters;
@@ -10,11 +12,11 @@ namespace NotionRecurringTasksCopier
     {
         private static void Main()
         {
-            System.Console.Write("Reading config... ");
+            Console.Write("Reading config... ");
 
             Config config = GetConfig();
 
-            System.Console.WriteLine("done.");
+            Console.WriteLine("done.");
 
             var filter = new CheckboxFilter
             {
@@ -26,6 +28,7 @@ namespace NotionRecurringTasksCopier
             };
 
             List<Page> pages = DataManager.QueryDatabase(config.DatabaseId, config.Token, filter);
+            List<Task> tasks = pages.Select(p => new Task(p)).ToList();
         }
 
         private static Config GetConfig()

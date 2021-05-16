@@ -5,6 +5,8 @@ using Newtonsoft.Json.Serialization;
 using NotionRecurringTasksCopier.Converters;
 using NotionRecurringTasksCopier.Dto;
 using NotionRecurringTasksCopier.Dto.Filters;
+using NotionRecurringTasksCopier.Dto.Parents;
+using NotionRecurringTasksCopier.Dto.Properties;
 
 namespace NotionRecurringTasksCopier
 {
@@ -26,6 +28,23 @@ namespace NotionRecurringTasksCopier
             return RestHelper.CallPostMethod<QueryDatabaseResult>(apiProvider, QueryMethod, dto, Settings, token);
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Global
+        public static Page CreateDatabasePage(string datebaseId, Dictionary<string, Property> properties,
+            string token)
+        {
+            string apiProvider = $"{ApiProviderPrefix}{ApiProviderPagesPart}";
+
+            var parent = new DatabaseParent { DatabaseId = datebaseId };
+
+            var dto = new CreatePageRequest
+            {
+                Parent = parent,
+                Properties = properties
+            };
+
+            return RestHelper.CallPostMethod<Page>(apiProvider, "", dto, Settings, token);
+        }
+
         private static readonly BaseSpecifiedConcreteClassConverter ContractResolver =
             new BaseSpecifiedConcreteClassConverter
         {
@@ -45,6 +64,7 @@ namespace NotionRecurringTasksCopier
         private const int MaxPageSize = 100;
         private const string ApiProviderPrefix = "https://api.notion.com/v1/";
         private const string ApiProviderDatabasesPart = "databases/";
+        private const string ApiProviderPagesPart = "pages/";
         private const string QueryMethod = "query";
     }
 }

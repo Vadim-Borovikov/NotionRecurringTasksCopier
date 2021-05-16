@@ -21,5 +21,10 @@ namespace NotionRecurringTasksCopier
             while (queryDatabase.HasMore);
             return result;
         }
+
+        public static void AddTaskToDatabase(Task task, string databaseId, string token)
+        {
+            NotionProvider.CreateDatabasePage(databaseId, task.GetPageProperties(), token);
+        }
     }
 }
