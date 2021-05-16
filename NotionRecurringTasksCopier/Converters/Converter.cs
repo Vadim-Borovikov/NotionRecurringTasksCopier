@@ -12,7 +12,7 @@ namespace NotionRecurringTasksCopier.Converters
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
         {
-            JObject jObject = JObject.Load(reader);
+            var jObject = serializer.Deserialize<JObject>(reader);
             string type = jObject["type"].Value<string>();
             TEnum? parsedType = ParseType(type);
             if (!parsedType.HasValue)
@@ -24,9 +24,9 @@ namespace NotionRecurringTasksCopier.Converters
 
         protected abstract T Deserialize(TEnum value, JObject jObject);
 
-        protected virtual TEnum? ParseType(string type)
+        private static TEnum? ParseType(string type)
         {
-            bool parsed = Enum.TryParse(type, true, out TEnum p);
+            bool parsed = Enum.TryParse(type.SnakeToPascal(), out TEnum p);
             if (parsed)
             {
                 return p;

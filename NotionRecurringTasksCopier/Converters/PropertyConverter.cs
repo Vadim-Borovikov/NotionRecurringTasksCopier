@@ -26,16 +26,5 @@ namespace NotionRecurringTasksCopier.Converters
                     throw new Exception($"Unsupported type {value}!");
             }
         }
-
-        protected override Property.TypeEnum? ParseType(string type)
-        {
-            switch (type)
-            {
-                case "multi_select":
-                    return Property.TypeEnum.MultiSelect;
-                default:
-                    return base.ParseType(type);
-            }
-        }
     }
 }

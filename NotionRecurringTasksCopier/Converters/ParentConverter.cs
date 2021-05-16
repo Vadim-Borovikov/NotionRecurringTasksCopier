@@ -16,16 +16,5 @@ namespace NotionRecurringTasksCopier.Converters
                     throw new Exception($"Unsupported type {value}!");
             }
         }
-
-        protected override Parent.TypeEnum? ParseType(string type)
-        {
-            switch (type)
-            {
-                case "database_id":
-                    return Parent.TypeEnum.DatabaseId;
-                default:
-                    return base.ParseType(type);
-            }
-        }
     }
 }
